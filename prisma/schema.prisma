@@ -1,0 +1,25 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Game {
+  id        String     @id @default(cuid())
+  roomId    String     @unique
+  winner    String?    // 'X', 'O', or 'DRAW'
+  createdAt DateTime   @default(now())
+  messages  Message[]
+}
+
+model Message {
+  id        String   @id @default(cuid())
+  text      String
+  sender    String   // Player symbol or ID
+  gameId    String
+  game      Game     @relation(fields: [gameId], references: [id])
+  createdAt DateTime @default(now())
+}
+
