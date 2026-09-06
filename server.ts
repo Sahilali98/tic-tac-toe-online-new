@@ -1,5 +1,5 @@
+import 'dotenv/config';
 import { createServer } from 'http';
-import { parse } from 'url';
 import next from 'next';
 import { Server } from 'socket.io';
 import { handleSocketConnection } from './server/gameHandler';
@@ -14,8 +14,9 @@ const handle = app.getRequestHandler();
 app.prepare().then(() => {
   const server = createServer(async (req, res) => {
     try {
-      const parsedUrl = parse(req.url!, true);
-      await handle(req, res, parsedUrl);
+      const parsedUrl = new URL(req.url!, `http://${req.headers.host || 'localhost'}`);
+      const query = Object.fromEntries(parsedUrl.searchParams.entries());
+      await handle(req, res, { ...parsedUrl, query, pathname: parsedUrl.pathname } as any);
     } catch (err) {
       console.error('Error occurred handling', req.url, err);
       res.statusCode = 500;
